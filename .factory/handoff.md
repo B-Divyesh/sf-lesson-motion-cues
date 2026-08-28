@@ -1,5 +1,11 @@
 # Handoff — Lesson Motion Cues
 
+## Independent verification status (2026-08-28): **FAIL — do not release**
+
+Candidate `6ce8d86da8a8d1a60c8ae96c40c6f134747481df` was independently tested against the live URL <https://lesson-motion-cues.sociobot.in/>. Live file hashes exactly match the candidate build, so this is not deployment-only.
+
+Release blockers: `.factory/claims.json` is missing, and the live first screen has neither an explicit one-click sample-data demo nor a clear first action. A malformed but accepted JSON import can also persist corrupt local state and leave later editor loads partially broken. Full commands, exact hashes, passing checks, response-policy findings, rate-limit evidence, and remediation are in [verification.md](verification.md). Do not ship until the blockers and high-severity import defect are corrected and independently re-verified.
+
 ## Shipped
 
 - A responsive, local-first cue editor for named circle, square, triangle, or user-owned SVG actors.
