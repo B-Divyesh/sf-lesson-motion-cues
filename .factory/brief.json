@@ -1,0 +1,7 @@
+{
+  "slug": "lesson-motion-cues",
+  "title": "Lesson Motion Cues",
+  "artifact_class": "static-web",
+  "job": "Help educators turn a readable, versioned cue sheet into a timed cartoon-like lesson animation.",
+  "v1": ["named actors", "enter/move/say/highlight cues", "captions", "local SVG/audio", "JSON and JavaScript export", "SVG frame and browser video recording"]
+}
