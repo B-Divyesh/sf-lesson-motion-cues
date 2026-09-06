@@ -1,27 +1,32 @@
 # Lesson Motion Cues
 
-Lesson Motion Cues is a local-first browser cue sheet for teachers and technical educators. It turns named actors and readable `enter`, `move`, `say`, and `highlight` time ranges into a cartoon-like lesson preview without asking the author to build an animation engine.
+Lesson Motion Cues is a browser cue timeline for teachers and technical educators. It turns readable `enter`, `move`, `say`, and `highlight` cues into a timed lesson animation.
 
 Live: <https://lesson-motion-cues.sociobot.in>
 
+One-click sample: <https://lesson-motion-cues.sociobot.in/demo>
+
 ## What it does
 
-- Places built-in markers or a user-owned SVG on a 16:9 stage.
-- Previews a deterministic, captioned cue timeline with reduced-motion support.
-- Accepts user-owned audio for synchronized preview and video recording.
-- Saves the project locally and imports/exports versioned JSON.
-- Exports JavaScript data, a self-contained SVG frame, and MP4 when the browser supports it (WebM fallback elsewhere).
+- Creates named actors and timed caption cues without a license.
+- Renders deterministic cue timing and stepped reduced-motion previews.
+- Removes scripts and external references from imported SVG files.
+- Keeps imported audio in the current tab.
+- Exports versioned JSON, JavaScript data, and a self-contained SVG frame.
+- Records MP4 where supported and WebM elsewhere.
 - Works offline after the first visit.
-- Offers an optional one-time $12 Field Kit of lesson templates through the Sociobot license API. Core editing, captions, and exports remain free.
+- Keeps the sample demo separate from saved lessons.
 
-No project or imported media is uploaded. Audio is intentionally held only for the current browser tab; add it again after reopening the project.
+Lesson and imported SVG data stay in the browser. Audio is not stored; add it again after reopening the lesson.
+
+The optional Field Kit contains three lesson templates for a one-time $12 license. Purchase registration is pending, so checkout is currently unavailable. Existing license restore remains in the app.
 
 ## Run and verify
 
 Requires Node.js 20 or newer.
 
 ```sh
-npm install
+npm ci
 npm run dev
 npm test
 npm run build
@@ -31,13 +36,15 @@ The exact production build command is `npm run build`. Static output lands in `d
 
 Playwright is pinned to 1.58.2. In the factory worker its Chromium binary is supplied through `PLAYWRIGHT_BROWSERS_PATH`; elsewhere run `npx playwright install chromium` once if needed.
 
+Every public product claim and its isolated command are listed in [`.factory/claims.json`](.factory/claims.json). The demo data and reset behavior are documented in [`.factory/demo.md`](.factory/demo.md).
+
 ## Project format
 
 Exports use `format: "lesson-motion-cues"` and `version: 1`. Actor and cue arrays are plain JSON, cue order is made stable at export, and all stage coordinates are percentages. The JavaScript export wraps the same object as an ES module.
 
 ## Privacy and billing
 
-Project state and license data use browser `localStorage`; see `/privacy` and `/terms`. Checkout and license verification use only `https://api.sociobot.in/api/v1/products/lesson-motion-cues/...`. No payment provider script, analytics, CDN font, or tracker runs in this app.
+Real project state and license data use browser `localStorage`; see `/privacy` and `/terms`. License verification uses `https://api.sociobot.in/api/v1/products/lesson-motion-cues/verify`. No payment script, analytics, CDN font, or tracker runs in this app.
 
 ## Visual assets
 

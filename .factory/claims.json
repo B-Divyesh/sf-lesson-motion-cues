@@ -1,0 +1,86 @@
+[
+  {
+    "id": "cold-first-screen",
+    "claim": "The first screen names the job and audience and recommends the sample lesson.",
+    "where": "landing first screen",
+    "test": "npm run test:e2e -- --grep @claim:cold-first-screen",
+    "sandbox": "fresh 390x844 browser context at / with empty storage"
+  },
+  {
+    "id": "demo-isolation",
+    "claim": "The sample demo never reads or changes a saved lesson.",
+    "where": "landing sample action and demo banner",
+    "test": "npm run test:e2e -- --grep @claim:demo-isolation",
+    "sandbox": "seed a real lesson, edit and reset /demo, then return to the real editor"
+  },
+  {
+    "id": "free-core",
+    "claim": "Core editing and captions work without a Field Kit license.",
+    "where": "landing facts, Field Kit section, README",
+    "test": "npm run test:e2e -- --grep @claim:free-core",
+    "sandbox": "fresh real editor with no license; add an actor and caption cue"
+  },
+  {
+    "id": "cue-preview",
+    "claim": "The preview renders timed captions and actor movement from readable cues.",
+    "where": "editor preview, how it works, README",
+    "test": "npm run test:e2e -- --grep @claim:cue-preview",
+    "sandbox": "pollination demo at caption and movement timestamps"
+  },
+  {
+    "id": "portable-exports",
+    "claim": "Exports reusable versioned JSON, JavaScript data, and a self-contained SVG frame.",
+    "where": "export dialog, landing, README",
+    "test": "npm run test:e2e -- --grep @claim:portable-exports",
+    "sandbox": "pollination demo; download and inspect all three file formats"
+  },
+  {
+    "id": "video-export",
+    "claim": "Records MP4 where supported and WebM elsewhere.",
+    "where": "export dialog and README",
+    "test": "npm run test:e2e -- --grep @claim:video-export",
+    "sandbox": "one-second demo lesson; inspect downloaded container signature"
+  },
+  {
+    "id": "reduced-motion",
+    "claim": "Reduced-motion preview uses stepped actor positions.",
+    "where": "README and product behavior",
+    "test": "npm run test:e2e -- --grep @claim:reduced-motion",
+    "sandbox": "fresh reduced-motion browser context at /demo"
+  },
+  {
+    "id": "local-privacy",
+    "claim": "Lesson and imported SVG data stay in the browser.",
+    "where": "landing facts, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:local-privacy",
+    "sandbox": "fresh real editor; import SVG while recording every outgoing request"
+  },
+  {
+    "id": "svg-sanitization",
+    "claim": "Imported SVG scripts and external references are removed.",
+    "where": "actor dialog",
+    "test": "npm run test:e2e -- --grep @claim:svg-sanitization",
+    "sandbox": "malicious SVG fixture with script, event handler, and external image"
+  },
+  {
+    "id": "audio-local",
+    "claim": "Imported audio stays in the current browser tab and is not stored in the lesson.",
+    "where": "editor audio action, privacy page, README",
+    "test": "npm run test:e2e -- --grep @claim:audio-local",
+    "sandbox": "fresh real editor with a tiny local WAV fixture"
+  },
+  {
+    "id": "field-kit",
+    "claim": "A valid Field Kit license opens three paid lesson templates.",
+    "where": "Field Kit dialog, terms, README",
+    "test": "npm run test:e2e -- --grep @claim:field-kit",
+    "sandbox": "fresh editor with a recorded valid verification response; load a paid template"
+  },
+  {
+    "id": "offline-reload",
+    "claim": "Works offline after the first visit.",
+    "where": "landing facts and README",
+    "test": "npm run test:e2e -- --grep @claim:offline-reload",
+    "sandbox": "own browser context; load /demo, wait for service worker, go offline, reload"
+  }
+]

@@ -30,6 +30,7 @@ UI transitions take 160–220ms and use only opacity and transform. Stage motion
 ## Asset plan and provenance
 
 - `public/assets/hero-map.webp` and its PNG source: an original generated editorial field-map scene used only in the welcome/empty state, not as evidence of app output. Prompt: “Topographic field map illustration for an educator's animation cue sheet, overhead folded cream paper terrain, three charming abstract geometric lesson actors as enamel survey markers, winding contour lines becoming a horizontal timing track, pine green ink, muted lake blue and ochre accents, subtle screen-print grain, clean editorial composition, generous blank area, no people, no text, no letters, no watermark, no logos, no gradients, no photorealism.” Generated with Azure OpenAI `factory-image` on 2026-08-28. Original to this product; reviewed for text, seams, brands, and unintended symbols.
+- `public/assets/social.webp` is a 1200×630 center crop of that original image. `public/apple-touch-icon.png` is a 180px crop. Both were derived locally with ImageMagick on 2026-09-06; no new third-party source was introduced.
 - Interface icons and stage patterns are hand-authored SVG/CSS primitives in the repository, MIT licensed with the app.
 - User media is never uploaded. Imported SVG/audio stays in the browser and is stored only when the browser can safely persist it locally.
 

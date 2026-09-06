@@ -1,0 +1,1 @@
+Build timed lesson animations from readable cues, then export them as code, SVG, or video.

@@ -68,16 +68,97 @@ export function sampleProject(): Project {
   };
 }
 
+const ACTOR_SHAPES = new Set<ActorShape>(['circle', 'square', 'triangle', 'svg']);
+const CUE_KINDS = new Set<CueKind>(['enter', 'move', 'say', 'highlight']);
+const ID_PATTERN = /^[a-zA-Z0-9_-]{1,80}$/;
+const COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const SVG_DATA_PATTERN = /^data:image\/svg\+xml;base64,[a-zA-Z0-9+/=]+$/;
+
+function record(value: unknown, message: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(message);
+  return value as Record<string, unknown>;
+}
+
+function text(value: unknown, label: string, max: number, allowEmpty = false): string {
+  if (typeof value !== 'string' || (!allowEmpty && !value.trim()) || value.length > max) {
+    throw new Error(`${label} must be ${allowEmpty ? 'text' : 'non-empty text'} under ${max + 1} characters.`);
+  }
+  return value;
+}
+
+function numberIn(value: unknown, label: string, min: number, max: number, inclusiveMin = true): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || (inclusiveMin ? value < min : value <= min) || value > max) {
+    throw new Error(`${label} must be a number between ${min} and ${max}.`);
+  }
+  return value;
+}
+
 export function validateProject(input: unknown): Project {
-  if (!input || typeof input !== 'object') throw new Error('That file does not contain a cue project.');
-  const p = input as Partial<Project>;
-  if (p.format !== 'lesson-motion-cues' || p.version !== 1) throw new Error('This project format or version is not supported.');
+  const p = record(input, 'That file does not contain a cue project.');
+  if (p.format !== 'lesson-motion-cues' || p.version !== PROJECT_VERSION) throw new Error('This project format or version is not supported.');
   if (!Array.isArray(p.actors) || !Array.isArray(p.cues)) throw new Error('The project is missing actors or cues.');
-  const duration = Number(p.duration);
-  if (!Number.isFinite(duration) || duration < 1 || duration > 900) throw new Error('Lesson duration must be between 1 and 900 seconds.');
-  const actorIds = new Set(p.actors.map(a => a?.id));
-  if (p.cues.some(c => !c || !actorIds.has(c.actorId) || !['enter','move','say','highlight'].includes(c.kind))) throw new Error('One or more cues reference an invalid actor or cue type.');
-  return structuredClone(p as Project);
+  if (p.actors.length > 100 || p.cues.length > 1000) throw new Error('This project has too many actors or cues.');
+
+  const duration = numberIn(p.duration, 'Lesson duration', 1, 900);
+  const title = text(p.title, 'Lesson title', 80);
+  if (typeof p.background !== 'string' || !COLOR_PATTERN.test(p.background)) throw new Error('Lesson background must be a six-digit color.');
+
+  const actorIds = new Set<string>();
+  const actors = p.actors.map((value, index): Actor => {
+    const actor = record(value, `Actor ${index + 1} is not valid.`);
+    const id = text(actor.id, `Actor ${index + 1} id`, 80);
+    if (!ID_PATTERN.test(id) || actorIds.has(id)) throw new Error(`Actor ${index + 1} has an invalid or repeated id.`);
+    actorIds.add(id);
+    const shape = actor.shape as ActorShape;
+    if (typeof shape !== 'string' || !ACTOR_SHAPES.has(shape)) throw new Error(`Actor ${index + 1} has an invalid shape.`);
+    if (typeof actor.color !== 'string' || !COLOR_PATTERN.test(actor.color)) throw new Error(`Actor ${index + 1} must use a six-digit color.`);
+    const color = actor.color;
+    const normalized: Actor = {
+      id,
+      name: text(actor.name, `Actor ${index + 1} name`, 30),
+      shape,
+      color,
+      x: numberIn(actor.x, `Actor ${index + 1} x position`, 0, 100),
+      y: numberIn(actor.y, `Actor ${index + 1} y position`, 0, 100),
+      size: numberIn(actor.size, `Actor ${index + 1} size`, 5, 50)
+    };
+    if (shape === 'svg') {
+      const svg = text(actor.svg, `Actor ${index + 1} SVG`, 500_000);
+      if (!SVG_DATA_PATTERN.test(svg)) throw new Error(`Actor ${index + 1} SVG must be an embedded SVG image.`);
+      normalized.svg = svg;
+    }
+    return normalized;
+  });
+
+  const cueIds = new Set<string>();
+  const cues = p.cues.map((value, index): Cue => {
+    const cue = record(value, `Cue ${index + 1} is not valid.`);
+    const id = text(cue.id, `Cue ${index + 1} id`, 80);
+    if (!ID_PATTERN.test(id) || cueIds.has(id)) throw new Error(`Cue ${index + 1} has an invalid or repeated id.`);
+    cueIds.add(id);
+    const actorId = text(cue.actorId, `Cue ${index + 1} actor`, 80);
+    const kind = cue.kind as CueKind;
+    if (!actorIds.has(actorId) || typeof kind !== 'string' || !CUE_KINDS.has(kind)) {
+      throw new Error(`Cue ${index + 1} references an invalid actor or cue type.`);
+    }
+    const start = numberIn(cue.start, `Cue ${index + 1} start`, 0, duration);
+    const cueDuration = numberIn(cue.duration, `Cue ${index + 1} duration`, 0, duration, false);
+    if (start + cueDuration > duration) throw new Error(`Cue ${index + 1} ends after the lesson.`);
+    const normalized: Cue = { id, actorId, kind, start, duration: cueDuration };
+    if (kind === 'say') normalized.text = text(cue.text, `Cue ${index + 1} caption`, 180);
+    if (kind === 'move') {
+      normalized.x = numberIn(cue.x, `Cue ${index + 1} end x position`, 0, 100);
+      normalized.y = numberIn(cue.y, `Cue ${index + 1} end y position`, 0, 100);
+    }
+    return normalized;
+  });
+
+  const project: Project = { format: 'lesson-motion-cues', version: PROJECT_VERSION, title, duration, background: p.background, actors, cues };
+  if (p.audio !== undefined) {
+    const audio = record(p.audio, 'The audio reference is not valid.');
+    project.audio = { name: text(audio.name, 'Audio name', 200) };
+  }
+  return project;
 }
 
 export function frameAt(project: Project, time: number, reducedMotion = false): ActorFrame[] {
